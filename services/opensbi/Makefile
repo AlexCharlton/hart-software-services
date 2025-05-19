@@ -139,8 +139,8 @@ $(BINDIR)/services/opensbi/mpfs_dtb.o: $(CONFIG_DEFAULT_DEVICE_TREE_UNQUOTED)
 	$(CROSS_COMPILE)ld -r -b binary -o $@ $(BINDIR)/services/opensbi/mpfs.dtb
 	rm $(BINDIR)/services/opensbi/mpfs.dtb
 
-$(CONFIG_DEFAULT_DEVICE_TREE_UNQUOTED): $(CONFIG_DEFAULT_DEVICE_TREE_UNQUOTED:%.dtb=%.dts)
-	$(error Error:: Rebuilding the DTB is not supported... Please rebuild manually)
+$(CONFIG_DEFAULT_DEVICE_TREE_UNQUOTED):
+	$(if $(wildcard $@),,$(error Error:: DTB file $@ not found. Please build it manually))
 endif
 endif
 
