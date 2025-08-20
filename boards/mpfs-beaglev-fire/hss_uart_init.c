@@ -23,26 +23,30 @@
 #include "drivers/mss/mss_mmuart/mss_uart.h"
 #include "uart_helper.h"
 
+#ifndef CONFIG_UART_BAUD_RATE
+#define CONFIG_UART_BAUD_RATE 115200
+#endif
+
 bool HSS_UARTInit(void)
 {
     // initialise debug UART
 
-    MSS_UART_init(HSS_UART_GetInstance(HSS_HART_E51), MSS_UART_115200_BAUD,
-        MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
+    MSS_UART_init(HSS_UART_GetInstance(HSS_HART_E51), CONFIG_UART_BAUD_RATE,
+                  MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
 
     // default all UARTs to 115200 for now
     // subsequent OS loads can change these if needed...
     MSS_UART_init(HSS_UART_GetInstance(HSS_HART_U54_1), MSS_UART_115200_BAUD,
-        MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
+                  MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
 
     MSS_UART_init(HSS_UART_GetInstance(HSS_HART_U54_2), MSS_UART_115200_BAUD,
-        MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
+                  MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
 
     MSS_UART_init(HSS_UART_GetInstance(HSS_HART_U54_3), MSS_UART_115200_BAUD,
-        MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
+                  MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
 
     MSS_UART_init(HSS_UART_GetInstance(HSS_HART_U54_4), MSS_UART_115200_BAUD,
-        MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
+                  MSS_UART_DATA_8_BITS | MSS_UART_NO_PARITY | MSS_UART_ONE_STOP_BIT);
 
     return true;
 }

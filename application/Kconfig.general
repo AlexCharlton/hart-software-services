@@ -73,6 +73,16 @@ config UART_POST_BOOT
     default 0
     range 0 4
 
+config UART_BAUD_RATE
+	int "UART baud rate"
+	range 1200 6250000
+	default 115200
+	help
+		Set the UART baud rate for HSS communication.
+
+		Valid range is 1200 to 6250000 baud.
+		If you do not know what to do here, use 115200.
+
 endmenu
 
 menu "Tamper"
@@ -223,7 +233,7 @@ config INITIALIZE_MEMORIES
 	default y
         help
 		Initialize memories to zero, to seed ECC.
-		
+
 		If you don't know what to do here, say N for now.
 endmenu
 
