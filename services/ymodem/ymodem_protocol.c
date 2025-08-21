@@ -127,6 +127,7 @@ struct XYModem_State
         int done;
     } status;
     bool eotReceived;
+    bool eotAcknowledged;
     uint8_t lastReceivedBlkNum;
     uint8_t expectedBlkNum;
     size_t totalReceivedSize;
@@ -419,6 +420,8 @@ static size_t XYMODEM_Receive(int protocol, struct XYModem_State *pState, char *
     pState->expectedSize = 0u;
     pState->maxSize = bufferSize;
     pState->protocol = protocol;
+    pState->eotReceived = false;
+    pState->eotAcknowledged = false;
 
     //
     // Protocol starts with receiver sending a character to indicate to the sender that it is ready...
@@ -441,7 +444,6 @@ static size_t XYMODEM_Receive(int protocol, struct XYModem_State *pState, char *
     {
         if (XYMODEM_ReadPacket(&packet, pState))
         {
-            putchar_(XYMODEM_ACK);
 
             if (!pState->status.done)
             {
@@ -459,14 +461,38 @@ static size_t XYMODEM_Receive(int protocol, struct XYModem_State *pState, char *
                         XYMODEM_SendCAN();
                         break;
                     }
+
+                    putchar_(XYMODEM_ACK);
+                    // Send ready character after processing start frame
+                    XYMODEM_SendReadyChar(pState);
+
+                    // Reset EOT flags since we're starting a new file
+                    pState->eotReceived = false;
+                    pState->eotAcknowledged = false;
                 }
                 else if (pState->eotReceived)
-                { // end of session
-                    pState->status.s.endOfSession = true;
-                    putchar_(XYMODEM_ACK);
+                { // end of file, but not necessarily end of session
+
+                    // YMODEM protocol: first EOT gets NAK, second EOT gets ACK
+                    if (pState->eotReceived && !pState->eotAcknowledged)
+                    {
+                        // First EOT
+                        putchar_(XYMODEM_NAK);
+                        pState->eotAcknowledged = true;
+                    }
+                    else
+                    {
+                        // Second EOT
+                        putchar_(XYMODEM_ACK);
+
+                        // Since we only want one file, send CAN to terminate the session
+                        XYMODEM_SendCAN();
+                        break;
+                    }
                 }
                 else if ((pState->totalReceivedSize + packet.length) < pState->maxSize)
                 {
+                    putchar_(XYMODEM_ACK);
                     // dynamically ensure we have enough buffer space to receive, on each received chunk
                     memcpy(buffer + pState->totalReceivedSize, packet.buffer, packet.length);
                     pState->totalReceivedSize += packet.length;
